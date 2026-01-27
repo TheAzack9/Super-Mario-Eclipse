@@ -9,6 +9,7 @@
 #include "globals.hxx"
 #include "settings.hxx"
 #include "stage.hxx"
+#include "coop.hxx"
 
 using namespace BetterSMS;
 
@@ -83,7 +84,7 @@ void initSunGlassReference(TSunGlass *sunglass, JSUMemoryInputStream *in) {
 }
 SMS_PATCH_BL(0x8017d194, initSunGlassReference);
 
-void TLightContext::process(TModelWaterManager &manager) {
+void TLightContext::process(TModelWaterManager &manager, u32 playerId) {
     u32 shinesCollected       = TFlagManager::smInstance->getFlag(0x40000);
     bool isCoronaMountainBeat = TFlagManager::smInstance->getBool(0x10077);
 
@@ -196,15 +197,16 @@ void TLightContext::process(TModelWaterManager &manager) {
         manager.mColor                = mColor;
         manager.LightType.mShowShadow = manager.mDarkLevel < 255;
         manager.mLayerCount           = sLightContext.mLayerCount;
-        gShineShadowPos               = gpMarioAddress->mTranslation;
+        gShineShadowPos               = SMSCoop::getMario(playerId)->mTranslation;
         break;
     }
     case TLightContext::ActiveType::FOLLOWCAMERA: {
         manager.mDarkLevel = sBrightLevel;
-        if (((f32 *)gpCamera)[0x134 / 4] > 13000.0f) {
+        CPolarSubCamera *camera = SMSCoop::getCameraById(playerId);
+        if (((f32 *)camera)[0x134 / 4] > 13000.0f) {
             manager.mDarkLevel = lerp<f32>(
                 static_cast<f32>(sBrightLevel), 255.0f,
-                clamp(1.0f - ((21000.0f - ((f32 *)gpCamera)[0x134 / 4]) / 8000.0f), 0.0f, 1.0f));
+                clamp(1.0f - ((21000.0f - ((f32 *)camera)[0x134 / 4]) / 8000.0f), 0.0f, 1.0f));
         }
 
         manager.mSphereStep           = mBaseScale * mLayerScale;
@@ -212,7 +214,7 @@ void TLightContext::process(TModelWaterManager &manager) {
         manager.mColor                = mColor;
         manager.LightType.mShowShadow = manager.mDarkLevel < 255;
         manager.mLayerCount           = sLightContext.mLayerCount;
-        gShineShadowPos               = gpCamera->mTranslation + mTranslation;
+        gShineShadowPos               = camera->mTranslation + mTranslation;
         break;
     }
     default:
@@ -274,8 +276,15 @@ static void initShineShadow() {
 SMS_PATCH_B(SMS_PORT_REGION(0x80280180, 0x80277F0C, 0, 0), initShineShadow);
 
 BETTER_SMS_FOR_CALLBACK void manageShineDarkness(TMarDirector *director) {
-    sLightContext.process(*gpModelWaterManager);
+    sLightContext.process(*gpModelWaterManager, 1);
 }
+
+void perform_postGX_updatePlayer(TPerformList* performList, u32 flags, JDrama::TGraphics *graphics) {
+    performList->perform(flags, graphics);
+    sLightContext.process(*gpModelWaterManager, 0);
+
+}
+SMS_PATCH_BL(0x80299d00, perform_postGX_updatePlayer);
 
 static bool checkIfActive() {
     return sLightContext.mLightType != TLightContext::ActiveType::DISABLED;

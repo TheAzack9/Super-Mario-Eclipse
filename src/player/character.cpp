@@ -21,6 +21,7 @@
 
 #include "globals.hxx"
 #include "player.hxx"
+#include "coop.hxx"
 
 static TGlobalVector<void *> sCharacterArcs;
 
@@ -38,7 +39,7 @@ BETTER_SMS_FOR_CALLBACK void initCharacterArchives(TMarDirector *director) {
 
     sCharacterArcs.clear();
 
-    for (int i = 0; i < 1; ++i) {
+    for (int i = 0; i < SMSCoop::getPlayerCount(); ++i) {
         char buffer[32];
         snprintf(buffer, 32, "%s", sCharacterPaths[(int)SME::TGlobals::sCharacterIDList[i]]);
 
@@ -57,7 +58,7 @@ BETTER_SMS_FOR_CALLBACK void initCharacterArchives(TMarDirector *director) {
 #if 1
 void initCharacterBuffer(TMario *player, JSUMemoryInputStream *input) {
     load__Q26JDrama6TActorFR20JSUMemoryInputStream(player, input);
-    u8 player_index = 0;
+    u8 player_index = SMSCoop::getPlayerId(player);
 
     JKRMemArchive *archive = reinterpret_cast<JKRMemArchive *>(JKRFileLoader::getVolume("mario"));
     archive->unmountFixed();
@@ -239,31 +240,32 @@ BETTER_SMS_FOR_CALLBACK void updatePlayerHUD(TMarDirector *director, const J2DOr
     char buffer[64];
     char namebuf[32];
 
-    auto *console = director->mGCConsole;
+    for(int i = 0; i < SMSCoop::getLoadedPlayerCount(); ++i) {
+        TGCConsole2 *console = SMSCoop::getConsoleForPlayer(i);
+        {
+            J2DPicture *marioIcon =
+                reinterpret_cast<J2DPicture *>(console->mMainScreen->search('m_ic'));
 
-    {
-        J2DPicture *marioIcon =
-            reinterpret_cast<J2DPicture *>(console->mMainScreen->search('m_ic'));
+            snprintf(buffer, 64, "/game_6/timg/%s_icon.bti",
+                     player_fnames[static_cast<int>(
+                         SME::TGlobals::getCharacterIDFromPlayer(SMSCoop::getMario(1 - i)))]);
 
-        snprintf(buffer, 64, "/game_6/timg/%s_icon.bti",
-                 player_fnames[static_cast<int>(
-                     SME::TGlobals::getCharacterIDFromPlayer(gpMarioAddress))]);
+            auto *timg = reinterpret_cast<ResTIMG *>(JKRFileLoader::getGlbResource(buffer));
+            if (timg)
+                marioIcon->changeTexture(timg, 0);
+        }
 
-        auto *timg = reinterpret_cast<ResTIMG *>(JKRFileLoader::getGlbResource(buffer));
-        if (timg)
-            marioIcon->changeTexture(timg, 0);
-    }
+        {
+            J2DPicture *marioName =
+                reinterpret_cast<J2DPicture *>(console->mMainScreen->search('m_tx'));
 
-    {
-        J2DPicture *marioName =
-            reinterpret_cast<J2DPicture *>(console->mMainScreen->search('m_tx'));
+            snprintf(buffer, 64, "/game_6/timg/%s_text.bti",
+                     player_fnames[static_cast<int>(
+                         SME::TGlobals::getCharacterIDFromPlayer(SMSCoop::getMario(1 - i)))]);
 
-        snprintf(buffer, 64, "/game_6/timg/%s_text.bti",
-                 player_fnames[static_cast<int>(
-                     SME::TGlobals::getCharacterIDFromPlayer(gpMarioAddress))]);
-
-        auto *timg = reinterpret_cast<ResTIMG *>(JKRFileLoader::getGlbResource(buffer));
-        if (timg)
-            marioName->changeTexture(timg, 0);
+            auto *timg = reinterpret_cast<ResTIMG *>(JKRFileLoader::getGlbResource(buffer));
+            if (timg)
+                marioName->changeTexture(timg, 0);
+        }
     }
 }

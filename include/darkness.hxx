@@ -14,7 +14,7 @@ struct TLightContext {
           mStepContext(0.0f), mPrevDarkness(0), mNextDarkness(0), mTargetDarkness(0),
           mPrevShineCount(0), mSizeMorphing(false) {}
 
-    void process(TModelWaterManager &manager);
+    void process(TModelWaterManager &manager, u32 playerId);
 
     ActiveType mLightType;
     TVec3f mTranslation;

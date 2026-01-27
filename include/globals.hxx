@@ -12,11 +12,12 @@
 
 #include "darkness.hxx"
 #include "player.hxx"
+#include "coop.hxx"
 
 namespace SME {
 
     struct TGlobals {
-        static CharacterID getCharacterIDFromPlayer(TMario *player) { return sCharacterIDList[0]; }
+        static CharacterID getCharacterIDFromPlayer(TMario *player) { return sCharacterIDList[SMSCoop::getPlayerId(player)]; }
 
         static bool isFreePlayMode() { return sIsFreePlay; }
 

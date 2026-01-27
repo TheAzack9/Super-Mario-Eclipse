@@ -20,6 +20,7 @@
 
 #include "object/water_mine.hxx"
 #include "stage.hxx"
+#include "coop.hxx"
 
 TWaterMine::TWaterMine(const char *name)
     : TMapObjGeneral(name), m_is_hit(false), m_is_dead(false) {}
@@ -44,11 +45,10 @@ void TWaterMine::control() {
         if (mCollidingObjs[i]->mObjectID == 0x1000002B || mCollidingObjs[i]->mObjectID == 0x4000022E) {
             playFragmentAnim();
 
-            if (PSVECDistance(gpMarioAddress->mTranslation, mTranslation) < 600.0f) {
+            TMario* closest = SMSCoop::getMario(SMSCoop::getClosestMarioId(&mTranslation));
+            if (closest != nullptr && PSVECDistance(closest->mTranslation, mTranslation) < 600.0f) {
                 // Hurt player
-                gpMarioAddress->decHP(gpMarioAddress->mHealth);
-                gpMarioAddress->mAttributes.mIsVisible = true;
-                gpMarioAddress->mTranslation.y         = mTranslation.y - 200.0f;
+                closest->decHP(closest->mHealth);
             }
 
             m_is_hit = true;
@@ -62,8 +62,8 @@ void TWaterMine::control() {
             // Hurt player
             TMario *player = reinterpret_cast<TMario *>(mCollidingObjs[i]);
             player->decHP(player->mHealth);
-            player->mAttributes.mIsVisible = true;
-            player->mTranslation.y = mTranslation.y - 200.0f;
+            //player->mAttributes.mIsVisible = true;
+            //player->mTranslation.y = mTranslation.y - 200.0f;
             break;
         }
     }
@@ -106,12 +106,11 @@ void TWaterMine::playFragmentAnim() {
 bool TWaterMine::receiveMessage(THitActor *sender, u32 message) {
     if (sender->mObjectID == 0x1000002B || sender->mObjectID == 0x4000022E) {
         playFragmentAnim();
-
-        if (PSVECDistance(gpMarioAddress->mTranslation, mTranslation) < 600.0f) {
+        
+        TMario* closest = SMSCoop::getMario(SMSCoop::getClosestMarioId(&mTranslation));
+        if (closest != nullptr && PSVECDistance(closest->mTranslation, mTranslation) < 600.0f) {
             // Hurt player
-            gpMarioAddress->decHP(gpMarioAddress->mHealth);
-            gpMarioAddress->mAttributes.mIsVisible = true;
-            gpMarioAddress->mTranslation.y         = mTranslation.y - 200.0f;
+            closest->decHP(closest->mHealth);
         }
 
         m_is_hit = true;

@@ -14,6 +14,7 @@
 #include "globals.hxx"
 #include "settings.hxx"
 #include "stage.hxx"
+#include "coop.hxx"
 
 extern bool gHadLuigiBefore;
 extern bool gHadPiantissimoBefore;
@@ -186,9 +187,9 @@ BETTER_SMS_FOR_CALLBACK void updateWarpStatesForCruiserCabin(TMarDirector *direc
             J3DTevStage *tev_stage     = light_obj->mActorData->mModel->mModelData->mStages[0];
             J3DTevBlock *tev_block     = *(J3DTevBlock **)((u8 *)tev_stage + 0x28);
             tev_block->setTevKColor(0, is_enabled ? enabled_color : disabled_color);
-
+            TMario* closestMario = SMSCoop::getMario(SMSCoop::getClosestMarioId(&light_obj->mTranslation));
             if (is_enabled &&
-                PSVECDistance(gpMarioAddress->mTranslation, light_obj->mTranslation) < 250.0f) {
+                PSVECDistance(closestMario->mTranslation, light_obj->mTranslation) < 250.0f) {
                 director->setNextStage(SME::STAGE_LANCIA, nullptr);
             }
         }
@@ -202,9 +203,10 @@ BETTER_SMS_FOR_CALLBACK void updateWarpStatesForCruiserCabin(TMarDirector *direc
             J3DTevStage *tev_stage     = light_obj->mActorData->mModel->mModelData->mStages[0];
             J3DTevBlock *tev_block     = *(J3DTevBlock **)((u8 *)tev_stage + 0x28);
             tev_block->setTevKColor(0, is_enabled ? on_color : off_color);
-
+            
+            TMario* closestMario = SMSCoop::getMario(SMSCoop::getClosestMarioId(&light_obj->mTranslation));
             if (is_enabled &&
-                PSVECDistance(gpMarioAddress->mTranslation, light_obj->mTranslation) < 200.0f) {
+                PSVECDistance(closestMario->mTranslation, light_obj->mTranslation) < 200.0f) {
                 director->setNextStage(SME::STAGE_VAPORWAVE, nullptr);
             }
         }
@@ -219,9 +221,10 @@ BETTER_SMS_FOR_CALLBACK void updateWarpStatesForCruiserCabin(TMarDirector *direc
             J3DTevStage *tev_stage     = light_obj->mActorData->mModel->mModelData->mStages[0];
             J3DTevBlock *tev_block     = *(J3DTevBlock **)((u8 *)tev_stage + 0x28);
             tev_block->setTevKColor(0, is_enabled ? enabled_color : disabled_color);
-
+            
+            TMario* closestMario = SMSCoop::getMario(SMSCoop::getClosestMarioId(&light_obj->mTranslation));
             if (is_enabled &&
-                PSVECDistance(gpMarioAddress->mTranslation, light_obj->mTranslation) < 250.0f) {
+                PSVECDistance(closestMario->mTranslation, light_obj->mTranslation) < 250.0f) {
                 director->setNextStage(SME::STAGE_RED_LILY, nullptr);
             }
         }
@@ -236,9 +239,10 @@ BETTER_SMS_FOR_CALLBACK void updateWarpStatesForCruiserCabin(TMarDirector *direc
             J3DTevStage *tev_stage     = light_obj->mActorData->mModel->mModelData->mStages[0];
             J3DTevBlock *tev_block     = *(J3DTevBlock **)((u8 *)tev_stage + 0x28);
             tev_block->setTevKColor(0, is_enabled ? enabled_color : disabled_color);
-
+            
+            TMario* closestMario = SMSCoop::getMario(SMSCoop::getClosestMarioId(&light_obj->mTranslation));
             if (is_enabled &&
-                PSVECDistance(gpMarioAddress->mTranslation, light_obj->mTranslation) < 250.0f) {
+                PSVECDistance(closestMario->mTranslation, light_obj->mTranslation) < 250.0f) {
                 director->setNextStage(SME::STAGE_YOSHI_VILLAGE, nullptr);
             }
         }
@@ -253,9 +257,10 @@ BETTER_SMS_FOR_CALLBACK void updateWarpStatesForCruiserCabin(TMarDirector *direc
             J3DTevStage *tev_stage     = light_obj->mActorData->mModel->mModelData->mStages[0];
             J3DTevBlock *tev_block     = *(J3DTevBlock **)((u8 *)tev_stage + 0x28);
             tev_block->setTevKColor(0, is_enabled ? enabled_color : disabled_color);
-
+            
+            TMario* closestMario = SMSCoop::getMario(SMSCoop::getClosestMarioId(&light_obj->mTranslation));
             if (is_enabled &&
-                PSVECDistance(gpMarioAddress->mTranslation, light_obj->mTranslation) < 250.0f) {
+                PSVECDistance(closestMario->mTranslation, light_obj->mTranslation) < 250.0f) {
                 director->setNextStage(SME::STAGE_PEACH_BEACH, nullptr);
             }
         }
@@ -363,9 +368,9 @@ BETTER_SMS_FOR_CALLBACK void resetStateForStage(TMarDirector *director) {
 
     if (director->mAreaID == TGameSequence::AREA_OPTION) {
         SME::TGlobals::sCharacterIDList[0] = SME::CharacterID::MARIO;
-        SME::TGlobals::sCharacterIDList[1] = SME::CharacterID::LUIGI;
-        SME::TGlobals::sCharacterIDList[2] = SME::CharacterID::PIANTISSIMO;
-        SME::TGlobals::sCharacterIDList[3] = SME::CharacterID::SHADOW_MARIO;
+        SME::TGlobals::sCharacterIDList[1] = SME::CharacterID::SHADOW_MARIO;
+        SME::TGlobals::sCharacterIDList[2] = SME::CharacterID::LUIGI;
+        SME::TGlobals::sCharacterIDList[3] = SME::CharacterID::PIANTISSIMO;
         TFlagManager::smInstance->resetCard();
         memset(((u8 *)TFlagManager::smInstance) + 0xF4, 0, 0x18C);
         return;

@@ -10,6 +10,7 @@
 
 #include "settings.hxx"
 #include "stage.hxx"
+#include "coop.hxx"
 
 extern bool gFromShineSelectForIntro;
 
@@ -61,9 +62,9 @@ static void extendedNextStateInitialize(TMarDirector *director, s8 next_state) {
     sprintf(camera_path, "/scene/map/camera/%s.bck", camera_name);
 
     if (JKRFileLoader::getGlbResource(camera_path) != nullptr) {
-        gpCamera->startDemoCamera(camera_name, nullptr, -1, 0.0f, true);
+        SMSCoop::startDemoCameraCoOp(camera_name, nullptr, -1, 0.0f, true);
     } else {
-        gpCamera->startDemoCamera("startcamera", nullptr, -1, 0.0f, true);
+        SMSCoop::startDemoCameraCoOp("startcamera", nullptr, -1, 0.0f, true);
     }
 
     bool isExStage = SMS_isExMap__Fv();

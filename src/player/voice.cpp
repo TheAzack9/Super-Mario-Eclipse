@@ -10,6 +10,7 @@
 
 #include "globals.hxx"
 #include "player.hxx"
+#include "coop.hxx"
 
 using namespace SME::Player;
 
@@ -32,11 +33,35 @@ void SoundSESystem_startSoundActorInner(u32 soundId, JAISound **sound, JAIActor 
 }
 SMS_PATCH_BL(SMS_PORT_REGION(0x80013dd4, 0, 0, 0), SoundSESystem_startSoundActorInner);
 
+
+int TMario_getVoiceStatus_override(TMario* mario) {
+	if(mario->onYoshi()) {
+		return 1;
+	}
+	int playerId = SMSCoop::getPlayerId(mario);
+	int voiceType = 0;
+
+    if(SME::TGlobals::getCharacterIDFromPlayer(gpMarioAddress) == SME::CharacterID::SHADOW_MARIO) {
+        voiceType = 2;
+    }
+
+	if(voiceType >= 2) {
+		return 2;
+	} else {
+		int type = mario->_388;
+		if(type == 2) return 6;
+		if(type == 1) return 2;
+		return 0;
+	}
+}
+//SMS_WRITE_32(SMS_PORT_REGION(0x803af004, 0, 0, 0), (u32)(&TMario_getVoiceStatus_override));
+SMS_WRITE_32(SMS_PORT_REGION(0x803dd740, 0, 0, 0), (u32)(&TMario_getVoiceStatus_override));
+
 u32 playerVoiceProcess(TMario *player, MSound *sound, u32 soundID, s16 health, u8 status) {
     // Check for main player
     if (player->_388 == 0) {
         SME::CharacterID player_id = SME::TGlobals::getCharacterIDFromPlayer(player);
-        if (player_id == SME::CharacterID::MARIO) {
+        if (player_id == SME::CharacterID::MARIO || player_id == SME::CharacterID::SHADOW_MARIO) {
             health = 8;
             switch (soundID) {
             case MSD_SE_MV41_JUMP_T_01: {

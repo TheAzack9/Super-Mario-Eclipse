@@ -40,7 +40,7 @@
 #include "menu/character_select.hxx"
 #include "stage.hxx"
 
-constexpr size_t PlayerMax = 1;
+constexpr size_t PlayerMax = 2;
 
 static SME::CharacterID s_player_id    = SME::CharacterID::MARIO;
 static JKRMemArchive *sResourceArchive = nullptr;
@@ -336,7 +336,7 @@ void CharacterSelectDirector::initializeLayout() {
         current_x += poster_width + margin_width;
     }
 
-    for (int i = 0; i < PlayerMax; ++i) {
+    for (int i = 0; i < SMSCoop::getPlayerCount(); ++i) {
         SelectionInfo s_info = SelectionInfo();
         s_info.mIsSelected   = false;
         s_info.mController   = gpApplication.mGamePads[i];
@@ -354,7 +354,22 @@ void CharacterSelectDirector::initializeLayout() {
             }
         }
 
-        CharacterInfo &info = mSelectScreen->mCharacterInfos.at(i);
+        if(s_info.mIndex == (u8)SME::CharacterID::SHADOW_MARIO) {
+            if(!mIsPiantissimo) {
+                s_info.mIndex = 1;
+            }
+            else if(!mIsLuigi) {
+                s_info.mIndex = 2;
+            } else {
+                s_info.mIndex = 3;
+            }
+        }
+
+        int index = i;
+        if(index > mSelectScreen->mCharacterInfos.size() - 1) {
+            index = mSelectScreen->mCharacterInfos.size() - 1;
+        }
+        CharacterInfo &info = mSelectScreen->mCharacterInfos.at(index);
 
         char tex_path[32];
         snprintf(tex_path, 32, "/char_select/timg/hand_p%i.bti", i + 1);
@@ -547,15 +562,16 @@ static int flagCharacterSelectMenu(u8 state) {
 
     bool has_luigi       = TFlagManager::smInstance->getBool(0x30018);
     bool has_piantissimo = TFlagManager::smInstance->getBool(0x30019);
-    if (!has_luigi && !has_piantissimo) {
-        return state;
-    }
+    //if (!has_luigi && !has_piantissimo) {
+    //    return state;
+    //}
 
     TGameSequence &next_scene = gpApplication.mNextScene;
     TGameSequence &cur_scene  = gpApplication.mCurrentScene;
     TGameSequence &prev_scene = gpApplication.mPrevScene;
 
     sMario       = true;
+    sShadowMario = true;
     sLuigi       = has_luigi;
     sPiantissimo = has_piantissimo;
 
@@ -690,9 +706,9 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80176160, 0, 0, 0), flagCharacterSelectMenu);
 
 BETTER_SMS_FOR_CALLBACK void checkForCharacterUnlocks(TMarDirector *director) {
     // Luigi
-    if (TFlagManager::smInstance->getBool(0x10077)) {
-        TFlagManager::smInstance->setBool(true, 0x30018);
-    }
+    //if (TFlagManager::smInstance->getBool(0x10077)) {
+    //    TFlagManager::smInstance->setBool(true, 0x30018);
+    //}
 
     // Piantissimo
     if (TFlagManager::smInstance->getBool(0x10018) && TFlagManager::smInstance->getBool(0x10041) &&
