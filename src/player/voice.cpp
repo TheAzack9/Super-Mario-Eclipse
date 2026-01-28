@@ -54,7 +54,6 @@ int TMario_getVoiceStatus_override(TMario* mario) {
 		return 0;
 	}
 }
-//SMS_WRITE_32(SMS_PORT_REGION(0x803af004, 0, 0, 0), (u32)(&TMario_getVoiceStatus_override));
 SMS_WRITE_32(SMS_PORT_REGION(0x803dd740, 0, 0, 0), (u32)(&TMario_getVoiceStatus_override));
 
 u32 playerVoiceProcess(TMario *player, MSound *sound, u32 soundID, s16 health, u8 status) {

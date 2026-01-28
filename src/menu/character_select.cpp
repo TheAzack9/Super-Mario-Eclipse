@@ -40,8 +40,6 @@
 #include "menu/character_select.hxx"
 #include "stage.hxx"
 
-constexpr size_t PlayerMax = 2;
-
 static SME::CharacterID s_player_id    = SME::CharacterID::MARIO;
 static JKRMemArchive *sResourceArchive = nullptr;
 
@@ -706,9 +704,9 @@ SMS_PATCH_BL(SMS_PORT_REGION(0x80176160, 0, 0, 0), flagCharacterSelectMenu);
 
 BETTER_SMS_FOR_CALLBACK void checkForCharacterUnlocks(TMarDirector *director) {
     // Luigi
-    //if (TFlagManager::smInstance->getBool(0x10077)) {
-    //    TFlagManager::smInstance->setBool(true, 0x30018);
-    //}
+    if (TFlagManager::smInstance->getBool(0x10077)) {
+        TFlagManager::smInstance->setBool(true, 0x30018);
+    }
 
     // Piantissimo
     if (TFlagManager::smInstance->getBool(0x10018) && TFlagManager::smInstance->getBool(0x10041) &&
